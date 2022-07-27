@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>랜덤다이스</title>
+
+<style type="text/css">
+body, div, ul, li { /*모든태그를 마진/패딩을 맞춰줌으로써 통일*/
+	/* "*"로 통일하여 모든 요소에 적용시킬 수도 있으나, 각 태그지정해주는게 속도에 용이하다.*/
+	margin: 0;
+	padding: 0;
+}
+
+#dice { /*게임창*/
+	border: 3px solid lightgray; /*게임 창 테두리*/
+	width: 1000px; /*가로길이*/
+	height: 400px; /*세로길이*/
+	margin: 0 auto; /*가운데 정렬*/
+	position: relatuive; /*위치 - 가장 가까운 부모요소 기준으로 부모 틀안에 배치해줌*/
+}
+
+#game { /*상태바*/
+	cursor: pointer; /*클릭 마우스커서 모양 바꾸기*/
+	position: absolute; /*타 요소들에게 방해받지않고 자신의 위치를 유지*/
+	width: 1000px; /*가로길이*/
+	height: 40px; /*세로길이*/
+	line-height: 40px; /*글자 가운데 정렬- height속성의 길이와 똑같이반영*/
+	background-color: #B5B2FF; /*배경색상*/
+	text-align: center; /*글자위치 - 가운데정렬*/
+}
+
+li {
+	position: absolute; /*	원하는 위치를 지정해 배치. */
+	top: 40px; /* 상단길이 조정 - 이미지를 area 가운데에 위치하기 위함  */
+	width: 500px; /*가로길이*/
+	height: 360px; /*세로길이*/
+	visibility: hidden;
+	/*숨김여부 - hidden 내용을 모두 가려줌 : 이후 필요한 이미지만 보여주는 기능 구현必*/
+	list-style-type: none; /*li태그 default스타일을 없애주기위함 → ● */
+}
+
+#one {
+	font-size: 132px;
+	word-spacing : 500px;
+	text-align: center; /*위치조정 : 유저는 좌측에 위치*/
+	position: relative; /*위치 - 가장 가까운 부모요소 기준으로 부모 틀안에 배치해줌*/
+}
+
+#user {
+	float: left; /*위치조정 : 유저는 좌측에 위치*/
+	position: relative; /*위치 - 가장 가까운 부모요소 기준으로 부모 틀안에 배치해줌*/
+}
+
+#pc {
+	float: right; /*위치조정 : 컴퓨터는 우측에 위치*/
+	position: relative; /*위치 - 가장 가까운 부모요소 기준으로 부모 틀안에 배치해줌*/
+}
+
+#user, #pc {
+	margin-top: 10%; /*상단 마진길이조절 -- 이미지를 area안에서 가운데정렬하기 위함*/
+}
+
+#user {
+	margin-left: 20%; /*좌측 마진길이조절 -- 이미지를 area안에서 가운데정렬하기 위함*/
+}
+
+#pc {
+	margin-right: 30%; /*우측 마진길이조절 -- 이미지를 area안에서 가운데정렬하기 위함*/
+}
+
+.one { /*이미지 추가 - 주사위 숫자(1)*/
+	background: url('img/dice-1.png') no-repeat;
+}
+
+.two { /*이미지 추가 - 주사위 숫자(2)*/
+	background: url('img/dice-2.png') no-repeat;
+}
+
+.three { /*이미지 추가 - 주사위 숫자(3)*/
+	background: url('img/dice-3.png') no-repeat;
+}
+
+.four { /*이미지 추가 - 주사위 숫자(4)*/
+	background: url('img/dice-4.png') no-repeat;
+}
+
+.five { /*이미지 추가 - 주사위 숫자(5)*/
+	background: url('img/dice-5.png') no-repeat;
+}
+
+.six { /*이미지 추가 - 주사위 숫자(6)*/
+	background: url('img/dice-6.png') no-repeat;
+}
+</style>
+
+
+</head>
+<body>
+	<div id="dice">
+		<div id="game">도 박</div>
+		<ul id="user">
+			<li class="one"></li>
+			<li class="two"></li>
+			<li class="three"></li>
+			<li class="four"></li>
+			<li class="five"></li>
+			<li class="six"></li>
+		</ul>
+
+		<ul id="pc">
+			<li class="one"></li>
+			<li class="two"></li>
+			<li class="three"></li>
+			<li class="four"></li>
+			<li class="five"></li>
+			<li class="six"></li>
+		</ul>
+
+	</div>
+
+<div id="one">나 상대방</div>
+
+	
+	
+<script type="text/javascript">
+
+var func; //두 함수(game, stopGame) 모두 사용해야하므로, scope설정을 위해 함수 외부에 생성 
+
+// 자원을 화면에 로드하게 되면 윈도우가 최상위,오브젝트로 존재하게 된다.
+window.onload = function(){
+	init(); //최초생성 == 초기화 함수
+}
+
+
+//[ 초기화면 설정 ]
+function init(){
+	var lists = document.querySelectorAll('li');  //li태그 요소들을 모두 가져옴
+	lists.forEach(function(list){
+		if(list.className=='one'){ // 주사위 1번 이미지만 보여줌(visible)
+			list.style.visibility = 'visible';
+		}
+		else{// 남은 이미지들은 가림(hidden)
+			list.style.visibility = 'hidden';
+		}
+	});
+	
+//[ 상태바 디자인 변경 ] 시작 또는 종료
+	document.querySelector('#game').onclick=function(){ //상태바를 클릭하면 동작(메서드)수행
+		
+		//게임시작 모드 디자인변환
+		if(this.firstChild.nodeValue == '스타뜨'){//START를 누르면 결과보기 상태바로 변경
+			this.firstChild.nodeValue = '눌러서 멈춰';
+			this.style.backgroundColor = 'lightgray';
+			
+			game(); // 게임메서드 호출
+		}
+		else { //원상복구 // 결과보기를 누르면 다시 초기상태(시작 상태바)로 변경
+			this.firstChild.nodeValue = '스타뜨'
+			this.style.backgroundColor = '#B5B2FF';
+			
+			stopGame(); // 결과반환메서드 호출
+		}
+	}
+}
+
+//게임시작 (이미지 변환모션 추가)
+function game() {
+	func = setInterval(function(){
+	var randNum = Math.floor(Math.random()*6);
+	var lists = document.querySelectorAll('li');
+	
+	lists.forEach(function(list, index){
+		if((index%6)==randNum){ //사용자
+			list.style.visibility = 'visible';
+		}
+		else{//컴퓨터
+			list.style.visibility = 'hidden';
+		}
+	});
+	}, 100); // 0.1초
+}
+
+//게임종료 == 결과반환
+function stopGame(){
+	clearInterval(func);
+	
+	var lists = document.querySelectorAll('li'); //All을 사용했기 때문에 배열로받음
+	
+	// lists인덱스 기준 : userRand 0~5, comRand 6~11
+	var userRand = Math.floor(Math.random()*6); // 유저의 결과값 
+	var comRand = Math.floor(Math.random()*6)+6; // 컴퓨터의 결과값
+	
+	// 유저, 컴퓨터 결과저장변수
+	var userRes = userRand;
+	var comRes = comRand-6;
+	
+	// 주사위결과 이미지 고정
+	lists.forEach(function(list, index){//list: 객체(데이터), index(list의 위치) 
+		
+		if(index == userRand){ // 난수로 돌린 유저의 결과값이 → 객체index와 같다면
+			list.style.visibility = 'visible'; // 해당 이미지를 표시함
+		}
+		else if(index == comRand){ // 난수로 돌린 컴퓨터의 결과값이 → 객체index와 같다면
+			list.style.visibility = 'visible'; // 해당 이미지를 표시함
+		}
+		else{// 없는 결과의 이미지는 모두 가림(hidden)
+			list.style.visibility = 'hidden';
+		}
+	});
+	// 사용자 안내를 위한 결과를 화면에 띄움(무승부 or 승리 or 패배)
+	showResult(userRes, comRes);
+}
+
+// 사용자 안내 결과창
+function showResult(user, com) { 
+	if (user == com) {
+		alert('비김');
+	}
+	else {
+		if (user > com) {//사용자보다 컴퓨터값이 낮다면 승리
+			alert('이겨쓰이겨쓰이겨쓰!');
+		} else {// 컴퓨터 값이 높으면 패배
+			alert('짐');
+		}
+	}//else
+		
+}//showResult
+
+
+</script>
+</body>
+</html>
